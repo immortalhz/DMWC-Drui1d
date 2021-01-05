@@ -1,0 +1,33 @@
+{
+	"Lua.diagnostics.globals": [
+		"CreateFrame",
+		"lb",
+		"__LB__",
+		"DMW",
+		"hooksecurefunc",
+		"GetKeyState",
+		"DMWHUDINFO",
+		"ObjectFacing",
+		"GetAnglesBetweenObjects",
+		"tinsert",
+		"tremove",
+		"IsMouselooking",
+		"MouselookStop",
+		"TurnOrActionStop",
+		"MoveAndSteerStop",
+		"FaceDirection",
+		"MouselookStart",
+		"sqrt",
+		"UnitCastingInfo",
+		"UnitCastID",
+		"IsCurrentSpell",
+		"StartAttack",
+		"UnitIsUnit",
+		"C_Timer",
+		"UnitIsCharmed",
+		"min",
+		"GetObjectWithGUID",
+		"GetSpellCount",
+		"RunMacroText"
+	]
+}
