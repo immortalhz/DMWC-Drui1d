@@ -725,11 +725,6 @@ function Druid.Rotation()
 		end
 	elseif Player.SpecID == "Feral" then
 		LocalsFeral()
-        if HUD.Shifts == 1 then
-            if not Player.Combat and not Buff.Prowl:Exist() and Spell.Prowl:Cast(Player) then
-                return true
-            end
-        end
 		if Target and Target.CanAttack and Target.Distance <= 7 and Target.HP == 100 and not Target.LoS and not Target.TriedToPull then
 			if not IsCurrentSpell(Spell.Attack.SpellID) then StartAttack() end
 			if Spell.Thrash:IsReady() then
