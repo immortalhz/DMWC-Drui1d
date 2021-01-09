@@ -26,12 +26,14 @@ end)
 local noAoeList = {
 	[173688] = true,
 	[173687] = true,
-	[172934] = true
+	[172943] = true,
+
 }
 
 local function aoeCheck()
 	for _, Unit in pairs(DMW.Attackable) do
-		if Unit.Distance <= 10 and noAoeList[Unit.ObjectID] then
+		-- if Unit.Distance <= 10 and noAoeList[Unit.ObjectID] then
+		if Unit.Distance <= 11 and not GrindBot.Grinding:CheckLevel(Unit.Level) then
 			-- print(Unit.Name)
 			return false
 		end
@@ -121,6 +123,10 @@ local function LocalsFeral()
 		if Talent.BrutalSlash and DMW.Time - Spell.BrutalSlash.LastCastTime <= 4 then BloodTalonsGenBrutalSlash = true; BloodTalonsGenStack = BloodTalonsGenStack + 1 end
 	end
 	noAoE = aoeCheck()
+end
+
+local function LocalsGuardian()
+	Enemy9Y, Enemy9YC = Player:GetEnemies(9)
 end
 
 local function BalanceSunfire()
@@ -630,13 +636,110 @@ local function FeralRotation()
 	end
 end
 
-local function CheckFlying(Unit)
-	local groundZ = select(3, TraceLine(Unit.PosX, Unit.PosY, 10000, Unit.PosX, Unit.PosY, -10000, 0x110))
-	if not groundZ then
-		return false
+local function GuardianRotation()
+	-- if FeralCooldowns() then return true end
+	-- actions.bear=bear_form,if=!buff.bear_form.up
+	-- actions.bear+=/ravenous_frenzy
+	-- actions.bear+=/convoke_the_spirits,if=!druid.catweave_bear&!druid.owlweave_bear
+	-- actions.bear+=/berserk_bear,if=(buff.ravenous_frenzy.up|!covenant.venthyr)
+	-- actions.bear+=/incarnation,if=(buff.ravenous_frenzy.up|!covenant.venthyr)
+	-- actions.bear+=/empower_bond,if=(!druid.catweave_bear&!druid.owlweave_bear)|active_enemies>=2
+	-- actions.bear+=/barkskin,if=talent.brambles.enabled
+	-- actions.bear+=/adaptive_swarm,if=(!dot.adaptive_swarm_damage.ticking&!action.adaptive_swarm_damage.in_flight&(!dot.adaptive_swarm_heal.ticking|dot.adaptive_swarm_heal.remains>3)|dot.adaptive_swarm_damage.stack<3&dot.adaptive_swarm_damage.remains<5&dot.adaptive_swarm_damage.ticking)
+	-- actions.bear+=/thrash_bear,target_if=refreshable|dot.thrash_bear.stack<3|(dot.thrash_bear.stack<4&runeforge.luffainfused_embrace.equipped)|active_enemies>=4
+	if Spell.Thrash:IsReady() and noAoE then
+		for _, Unit in ipairs(Enemy9Y) do
+			if Debuff.Thrash:Refresh(Unit) then
+				if Spell.Thrash:Cast(Unit) then return true end
+			end
+		end
 	end
-	return Unit.PosZ - groundZ >= 5
+	if Spell.Thrash:IsReady() and Enemy9YC > 1 and noAoE then
+		for _, Unit in ipairs(Enemy9Y) do
+			if Spell.Thrash:Cast(Unit) then return true end
+		end
+	end
+	-- actions.bear+=/moonfire,if=((buff.galactic_guardian.up)&active_enemies<2)|((buff.galactic_guardian.up)&!dot.moonfire.ticking&active_enemies>1&target.time_to_die>12)
+	if Spell.Moonfire:IsReady() then
+		if Buff.GalacticGuardian:Exist() then
+			for _, Unit in ipairs(Enemy30Y) do
+				if Unit.TTD > 8 and not Debuff.Moonfire:Exist(Unit) then
+					if Spell.Moonfire:Cast(Unit) then return true end
+				end
+			end
+		end
+	end
+	-- actions.bear+=/moonfire,if=(dot.moonfire.remains<=3&(buff.galactic_guardian.up)&active_enemies>5&target.time_to_die>12)
+	if Spell.Moonfire:IsReady() and EnemyMeleeCount > 5 then
+		if Buff.GalacticGuardian:Exist() then
+			for _, Unit in ipairs(Enemy30Y) do
+				if Unit.TTD > 8 and Debuff.Moonfire:Exist(Unit) and Debuff.Moonfire:Remain(Unit) < 3 then
+					if Spell.Moonfire:Cast(Unit) then return true end
+				end
+			end
+		end
+	end
+	-- actions.bear+=/moonfire,if=(refreshable&active_enemies<2&target.time_to_die>12)|(!dot.moonfire.ticking&active_enemies>1&target.time_to_die>12)
+	-- if Spell.Moonfire:IsReady() then
+	-- 	if EnemyMeleeCount < 2 then
+	-- 		for _, Unit in ipairs(Enemy30Y) do
+	-- 			if Unit.TTD > 8 and Debuff.Moonfire:Refresh(Unit)  then
+	-- 				if Spell.Moonfire:Cast(Unit) then return true end
+	-- 			end
+	-- 		end
+	-- 	elseif EnemyMeleeCount > 1 then
+	-- 		for _, Unit in ipairs(Enemy30Y) do
+	-- 			if Unit.TTD > 8 and not Debuff.Moonfire:Exist() then
+	-- 				if Spell.Moonfire:Cast(Unit) then return true end
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
+	-- actions.bear+=/swipe,if=buff.incarnation_guardian_of_ursoc.down&buff.berserk_bear.down&active_enemies>=4
+
+	if Spell.Swipe:IsReady() and noAoE then
+		if not Buff.Berserk:Exist(Player) and Enemy9YC >= 4 then
+			if Spell.Swipe:Cast(Player) then return true end
+		end
+	end
+	-- actions.bear+=/maul,if=buff.incarnation.up&active_enemies<2
+	-- actions.bear+=/maul,if=(buff.savage_combatant.stack>=1)&(buff.tooth_and_claw.up)&buff.incarnation.up&active_enemies=2
+	-- actions.bear+=/mangle,if=buff.incarnation.up&active_enemies<=3
+	-- actions.bear+=/maul,if=(((buff.tooth_and_claw.stack>=2)|(buff.tooth_and_claw.up&buff.tooth_and_claw.remains<1.5)|(buff.savage_combatant.stack>=3))&active_enemies<3)
+	-- actions.bear+=/thrash_bear,if=active_enemies>1
+	if Spell.Thrash:IsReady() and Enemy9YC > 1 and noAoE then
+		for _, Unit in ipairs(Enemy9Y) do
+			if Spell.Thrash:Cast(Unit) then return true end
+		end
+	end
+	-- actions.bear+=/mangle,if=((rage<90)&active_enemies<3)|((rage<85)&active_enemies<3&talent.soul_of_the_forest.enabled)
+	if Spell.Mangle:IsReady() and Player.Rage < 90 and EnemyMeleeCount < 3 and GrindBot.Combat.MultipullForceCombat then
+		for _, Unit in ipairs(EnemyMelee) do
+			if Spell.Mangle:Cast(Unit) then return true end
+		end
+	end
+	-- actions.bear+=/pulverize,target_if=dot.thrash_bear.stack>2
+	-- actions.bear+=/thrash_bear
+	if Spell.Thrash:IsReady() and noAoE then
+		for _, Unit in ipairs(Enemy9Y) do
+			if Spell.Thrash:Cast(Unit) then return true end
+		end
+	end
+	-- actions.bear+=/maul,if=active_enemies<3
+	if Spell.Maul:IsReady() and EnemyMeleeCount < 3 and GrindBot.Combat.MultipullForceCombat then
+		for _, Unit in ipairs(EnemyMelee) do
+			if Spell.Maul:Cast(Unit) then return true end
+		end
+	end
+	-- actions.bear+=/swipe_bear
+	if Spell.Swipe:IsReady() and noAoE then
+		if Spell.Swipe:Cast(Player) then return true end
+	end
+	-- actions.bear+=/ironfur,if=rage.deficit<40&buff.ironfur.remains<0.5
+
 end
+
+
 
 -- local oldFunction2 = UseToy
 -- UseToy = function(...) return EWTUnlock('UseToy', oldFunction2, ...) end
@@ -725,13 +828,13 @@ function Druid.Rotation()
 		end
 	elseif Player.SpecID == "Feral" then
 		LocalsFeral()
-		if Target and Target.CanAttack and Target.Distance <= 7 and Target.HP == 100 and not Target.LoS and not Target.TriedToPull then
-			if not IsCurrentSpell(Spell.Attack.SpellID) then StartAttack() end
-			if Spell.Thrash:IsReady() then
-				print("trying to pull")
-				if Spell.Thrash:Cast(Player) then Target.TriedToPull = true; return true end
-			end
-		end
+		-- if Target and Target.CanAttack and Target.Distance <= 7 and Target.HP == 100 and not Target.LoS and not Target.TriedToPull then
+		-- 	if not IsCurrentSpell(Spell.Attack.SpellID) then StartAttack() end
+		-- 	if Spell.Thrash:IsReady() then
+		-- 		print("trying to pull")
+		-- 		if Spell.Thrash:Cast(Player) then Target.TriedToPull = true; return true end
+		-- 	end
+		-- end
 		if not Player.Combat and not Buff.Prowl:Exist() then
 			if HUD.Cleanse == 1  then
 				if Cleanse() then return true end
@@ -741,12 +844,11 @@ function Druid.Rotation()
 					if Spell.Regrowth:Cast(Player) then return true end
 				end
 			end
-			-- if
 		end
 		if (Target and Target.ValidEnemy) or (DMW.Player.InstanceID ~= nil and Player.Combat) or not Player.InGroup then
 			if Target and Target.ValidEnemy then
-				local flyingT = CheckFlying(Target)
-				if flyingT and not Player.Combat  then
+				local flyingT = Target:Flying()
+				if flyingT and not Debuff.Moonfire:Exist(Target) then
 					if Spell.Moonfire:IsReady() and Spell.Moonfire:Cast(Target) then return true end
 					return
 				else
@@ -764,7 +866,7 @@ function Druid.Rotation()
 				end
 			end
 
-			if Target and Target.ValidEnemy and Target.Distance <= 5 and not Buff.Prowl:Exist() and Target:Facing() then
+			if Target and Target.ValidEnemy and Target.Distance <= 5 and (not Buff.Prowl:Exist() or Spell.Prowl:CD() > 5) and Target:Facing() then
 				if not IsCurrentSpell(Spell.Attack.SpellID) then StartAttack() end
 			end
 
@@ -787,6 +889,125 @@ function Druid.Rotation()
 				if Buff.PredatorySwiftness:Exist() and not Buff.Prowl:Exist() and Player.HP <= 90 then
 					if Spell.Regrowth:Cast(Player) then return true end
 				end
+			end
+		end
+	elseif Player.SpecID == "Guardian" then
+		LocalsGuardian()
+		noAoE = aoeCheck()
+		-- if Target and Target.CanAttack and Target.Distance <= 7 and Target.HP == 100 and not Target.LoS and not Target.TriedToPull then
+		-- 	if not IsCurrentSpell(Spell.Attack.SpellID) then StartAttack() end
+		-- 	if Spell.Thrash:IsReady() then
+		-- 		print("trying to pull")
+		-- 		if Spell.Thrash:Cast(Player) then Target.TriedToPull = true; return true end
+		-- 	end
+		-- end
+		if not Player.Combat  then
+			if HUD.Cleanse == 1  then
+				if Cleanse() then return true end
+			end
+			if HUD.Defensive == 1 then
+				-- if Buff.PredatorySwiftness:Exist() and Player.HP <= 90 then
+				-- 	if Spell.Regrowth:Cast(Player) then return true end
+				-- end
+				if Player.HP <= 80 and not Player.Moving then
+					if Spell.Regrowth:Cast(Player) then return true end
+				end
+			end
+			-- if
+		end
+		if (Target and Target.ValidEnemy) or Player.Combat then
+			if Spell.Thrash:IsReady() and Enemy9YC > 2 and noAoE then
+				for _, Unit in ipairs(Enemy9Y) do
+					if Spell.Thrash:Cast(Unit) then return true end
+				end
+			end
+			-- if Target and Target.ValidEnemy then
+			-- 	local flyingT = Target:Flying()
+			-- 	if flyingT and not Debuff.Moonfire:Exist(Target) then
+			if Target and Target.ValidEnemy and Spell.Moonfire:IsReady() and not Debuff.Moonfire:Exist(Target) and (not Target.Target or Target.Target ~= DMW.Player.Pointer) then
+				if Spell.Moonfire:Cast(Target) then
+				-- if not Player.Combat then
+				-- 	GrindBot.Combat.EvadeCheck = {Target.PosX, Target.PosY}
+				-- end
+					-- Target.Pulled = DMW.Time
+					return true
+				end
+			end
+			-- 		return
+			-- 	else
+			-- 		if not Buff.Prowl:Exist() and not Player.Combat and (Target.Distance <= 10 or Spell.WildChargeCat:IsReady()) and Target.Distance <= 25 and Spell.Prowl:IsReady() then
+			-- 			if Spell.Prowl:Cast(Player) then return true end
+			-- 		end
+			-- 		if  Target.Distance >= 10 and Target.Distance <= 25 and not flyingT and Buff.FormCat:Exist() then
+			-- 			if Spell.WildChargeCat:IsReady() then
+			-- 				if Spell.WildChargeCat:Cast(Target) then return true end
+			-- 			end
+			-- 			-- if Spell.WildChargeTravel:IsReady() and UnitIsFacing("player", Target.Pointer) then
+			-- 			-- 	if Spell.WildChargeTravel:Cast() then return true end
+			-- 			-- end
+			-- 		end
+			-- 	end
+			-- end
+			if Target and Target.ValidEnemy and Target.Distance <= 5 and Target:Facing() then
+				if not IsCurrentSpell(Spell.Attack.SpellID) then StartAttack() end
+			end
+			--Cooldowns
+			if GrindBot.Combat.MultipullForceCombat then
+				if EnemyMeleeCount >= 10 then
+					if Spell.Berserk:IsReady() then
+						if Spell.Berserk:Cast(Player) then return true end
+					end
+				elseif EnemyMeleeCount >= 5 and not Buff.Berserk:Exist() then
+					if Spell.Convoke:IsReady() then
+						if Spell.Barkskin:IsReady() then
+							Spell.Barkskin:Cast(Player)
+						end
+						-- if not Buff.FormCat:Exist() then
+						-- 	if Spell.FormCat:Cast(Player) then return true end
+						-- else
+							for _, Unit in ipairs(EnemyMelee) do
+								if Spell.Convoke:Cast(Unit) then return true end
+							end
+						-- end
+					end
+				end
+			end
+			if HUD.Shifts == 1 then
+				if not Buff.FormBear:Exist() then
+					if Spell.FormBear:Cast(Player) then return true end
+				end
+			end
+
+			-- if FeralStealthOpener() then return true end
+			if HUD.Defensive == 1 then
+				-- if Buff.PredatorySwiftness:Exist() and not Buff.Prowl:Exist() and Player.HP <= 40 then
+				-- 	if Spell.Regrowth:Cast(Player) then return true end
+				-- end
+				if EnemyMeleeCount >= 5 then
+					if Spell.Barkskin:IsReady() then
+						Spell.Barkskin:Cast(Player)
+					end
+				end
+				if Spell.Ironfur:IsReady() and not Spell.Ironfur:LastCast() then
+					if Player.RageDeficit < 40 and (Buff.Ironfur:Remain() < 0.5 or Buff.Ironfur:Stacks() < 3) then
+						if Spell.Ironfur:Cast(Player) then end
+					end
+				end
+				if Player.HP <= 60 then
+					if Spell.FrenziedRegeneration:IsReady() then
+						if Spell.FrenziedRegeneration:Cast(Player) then return true end
+					end
+				end
+			end
+
+			if EnemyMeleeCount >= 1 and GuardianRotation() then return true end
+			if HUD.Cleanse == 1 then
+				if Cleanse() then return true end
+			end
+			if HUD.Defensive == 1 then
+				-- if Buff.PredatorySwiftness:Exist() and not Buff.Prowl:Exist() and Player.HP <= 90 then
+				-- 	if Spell.Regrowth:Cast(Player) then return true end
+				-- end
 			end
 		end
     elseif Player.SpecID =="Restoration" then
