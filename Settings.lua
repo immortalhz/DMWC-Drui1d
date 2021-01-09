@@ -31,6 +31,12 @@ function Druid.Settings()
                 [1] = {Text = "|cFF00FF00Shifts", Tooltip = ""},
                 [2] = {Text = "|cffFF4500Shifts", Tooltip = ""},
             }
+        },
+        [5] = {
+            Prowl = {
+                [1] = {Text = "|cFF00FF00Prowl", Tooltip = ""},
+                [2] = {Text = "|cffFF4500Prowl", Tooltip = ""},
+            }
         }
     }
     UI.AddToggle("Healing OOC", nil, false)
