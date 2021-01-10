@@ -993,7 +993,7 @@ function Druid.Rotation()
         end
     elseif Player.SpecID == "Feral" then
         LocalsFeral()
-        if HUD.Shifts == 1 then
+        if HUD.Prowl == 1 then
             if not Player.Combat and not Buff.Prowl:Exist() and Spell.Prowl:Cast(Player) then
                 return true
             end
