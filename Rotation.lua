@@ -33,7 +33,7 @@ local noAoeList = {
 local function aoeCheck()
 	for _, Unit in pairs(DMW.Attackable) do
 		-- if Unit.Distance <= 10 and noAoeList[Unit.ObjectID] then
-		if Unit.Distance <= 11 and not GrindBot.Grinding:CheckLevel(Unit.Level) then
+		if Unit.Distance <= 11 and not GrindBot.Grinding:CheckLevel(Unit.Level) and not UnitThreatSituation(DMW.Player.Pointer, Unit.Pointer) then
 			-- print(Unit.Name)
 			return false
 		end
@@ -921,6 +921,13 @@ function Druid.Rotation()
 					if Spell.Thrash:Cast(Unit) then return true end
 				end
 			end
+			if Spell.Moonfire:IsReady() then
+				for _, Unit in ipairs(DMW.Attackable) do
+					if GrindBot.Grinding:UnitIsViableForGrind(Unit) then
+						if Spell.Moonfire:Cast(Unit) then return true end
+					end
+				end
+			end
 			-- if Target and Target.ValidEnemy then
 			-- 	local flyingT = Target:Flying()
 			-- 	if flyingT and not Debuff.Moonfire:Exist(Target) then
@@ -953,20 +960,27 @@ function Druid.Rotation()
 			end
 			--Cooldowns
 			if GrindBot.Combat.MultipullForceCombat then
+				if EnemyMeleeCount >= 3 and Spell.Barkskin:IsReady()  then
+					Spell.Barkskin:Cast(Player)
+				end
+				if EnemyMeleeCount >= 5 and Player.HP < 50 and Spell.SurvivalInstincts:IsReady() and not Spell.SurvivalInstincts:LastCast() then
+					Spell.SurvivalInstincts:Cast(Player)
+				end
 				if EnemyMeleeCount >= 10 then
 					if Spell.Berserk:IsReady() then
 						if Spell.Berserk:Cast(Player) then return true end
 					end
-				elseif EnemyMeleeCount >= 5 and not Buff.Berserk:Exist() then
+				end
+				if EnemyMeleeCount == 1 and not Spell.Berserk:LastCast() and not Buff.Berserk:Exist() then
 					if Spell.Convoke:IsReady() then
-						if Spell.Barkskin:IsReady() then
-							Spell.Barkskin:Cast(Player)
-						end
+
 						-- if not Buff.FormCat:Exist() then
 						-- 	if Spell.FormCat:Cast(Player) then return true end
 						-- else
 							for _, Unit in ipairs(EnemyMelee) do
-								if Spell.Convoke:Cast(Unit) then return true end
+								if Unit.Level >= 55 then
+									if Spell.Convoke:Cast(Unit) then return true end
+								end
 							end
 						-- end
 					end
@@ -988,10 +1002,10 @@ function Druid.Rotation()
 						Spell.Barkskin:Cast(Player)
 					end
 				end
-				if Spell.Ironfur:IsReady() and not Spell.Ironfur:LastCast() then
-					if Player.RageDeficit < 40 and (Buff.Ironfur:Remain() < 0.5 or Buff.Ironfur:Stacks() < 3) then
+				if Spell.Ironfur:IsReady() and (EnemyMeleeCount >= 3 or
+					 (Player.RageDeficit < 40 and (Buff.Ironfur:Remain() < 0.5 or Buff.Ironfur:Stacks() < 3))) then
 						if Spell.Ironfur:Cast(Player) then end
-					end
+					-- end
 				end
 				if Player.HP <= 60 then
 					if Spell.FrenziedRegeneration:IsReady() then
