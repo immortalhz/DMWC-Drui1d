@@ -40,6 +40,9 @@ function Druid.Settings()
         }
     }
     UI.AddToggle("Healing OOC", nil, false)
+    if DMW.Player.SpecID == "Guardian" then
+        UI.AddRange("EnemyMelee for use Berserk", nil, 0, 30, 1, 7)
+    end
     if DMW.Player.SpecID == "Restoration" then
         UI.AddRange("DPS HP", nil, 0, 100, 1, 0)
         UI.AddRange("Critical HP", nil, 0, 100, 1, 0)
@@ -59,10 +62,11 @@ function Druid.Settings()
         UI.AddRange("WildGrowth HP", nil, 0, 100, 1, 0)
         UI.AddRange("WildGrowth Count", nil, 0, 5, 1, 0)
     end
-        UI.AddTab("Damage")
-    UI.AddToggle("Moonfire", "", true)
-    UI.AddToggle("Sunfire", "", true)
-    UI.AddToggle("Wrath", "", true)
+    UI.AddTab("Damage")
+        UI.AddToggle("Moonfire", "", true)
+        UI.AddToggle("Sunfire", "", true)
+        UI.AddToggle("Wrath", "", true)
+
     -- UI.AddToggle("Moonfire", "", true)
 
     -- UI.AddHeader("This Is A Header")

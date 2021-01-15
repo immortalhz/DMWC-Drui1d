@@ -1156,17 +1156,26 @@ function Druid.Rotation()
             end
             --Cooldowns
             if GrindBot.Combat.MultipullForceCombat then
-                if EnemyMeleeCount >= 10 then
+                if Player.Combat and Target and Target.Distance >= 20 then
+                    if Spell.StampedingRoar:IsReady() then
+                        if Spell.StampedingRoar:Cast(Player) then
+                            return true
+                        end
+                    end
+                end
+                if EnemyMeleeCount >= Setting("EnemyMelee for use Berserk") then
                     if Spell.Berserk:IsReady() then
                         if Spell.Berserk:Cast(Player) then
                             return true
                         end
                     end
-                elseif EnemyMeleeCount >= 5 and not Buff.Berserk:Exist() then
-                    if Spell.Convoke:IsReady() then
-                        if Spell.Barkskin:IsReady() then
-                            Spell.Barkskin:Cast(Player)
+                    if Talent.IncarnationGuardianOfUrsoc then
+                        if Spell.IncarnationGuardianOfUrsoc:Cast(Player) then
+                            return true
                         end
+                    end
+                elseif EnemyMeleeCount >= 5 and not Buff.Berserk:Exist() or EnemyMeleeCount >= 2 and not Buff.Berserk:Exist() and Player.HP < 25 then
+                    if Spell.Convoke:IsReady() then
                         -- if not Buff.FormCat:Exist() then
                         -- 	if Spell.FormCat:Cast(Player) then return true end
                         -- else
@@ -1192,7 +1201,7 @@ function Druid.Rotation()
                 -- if Buff.PredatorySwiftness:Exist() and not Buff.Prowl:Exist() and Player.HP <= 40 then
                 -- 	if Spell.Regrowth:Cast(Player) then return true end
                 -- end
-                if EnemyMeleeCount >= 5 then
+                if EnemyMeleeCount >= 5 or Player.HP < 75 then
                     if Spell.Barkskin:IsReady() then
                         Spell.Barkskin:Cast(Player)
                     end
@@ -1208,6 +1217,11 @@ function Druid.Rotation()
                         if Spell.FrenziedRegeneration:Cast(Player) then
                             return true
                         end
+                    end
+                end
+                if Player.HP < 40 and not Buff.SurvivalInstincts:Exist() then
+                    if Spell.SurvivalInstincts:IsReady() and Spell.SurvivalInstincts:Cast(Player) then
+                        return true
                     end
                 end
             end
