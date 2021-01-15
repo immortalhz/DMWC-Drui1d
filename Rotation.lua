@@ -894,6 +894,22 @@ function Druid.Rotation()
 	elseif Player.SpecID == "Guardian" then
 		LocalsGuardian()
 		noAoE = aoeCheck()
+		if Player.Combat and not noAoE and GrindBot.Combat.MultipullForceCombat  then
+			-- local moveAwayFromUnit
+			-- for _, Unit in pairs(DMW.Attackable) do
+			-- 	-- if Unit.Distance <= 10 and noAoeList[Unit.ObjectID] then
+			-- 	if Unit.Distance <= 11 and not GrindBot.Grinding:CheckLevel(Unit.Level) and not UnitThreatSituation(DMW.Player.Pointer, Unit.Pointer) then
+			-- 		-- print(Unit.Name)
+			-- 		moveAwayFromUnit = Unit
+			-- 		break
+			-- 	end
+			-- end
+			-- print("dodge position")
+			GrindBot.Navigation.ForcedMovementCoords = true-- {GetPositionBetweenObjects(moveAwayFromUnit.Pointer, DMW.Player.Pointer, 20)}
+		end
+		if GrindBot.Navigation.ForcedMovementCoords and (not Player.Combat or noAoE) then
+			GrindBot.Navigation.ForcedMovementCoords = nil
+		end
 		-- if Target and Target.CanAttack and Target.Distance <= 7 and Target.HP == 100 and not Target.LoS and not Target.TriedToPull then
 		-- 	if not IsCurrentSpell(Spell.Attack.SpellID) then StartAttack() end
 		-- 	if Spell.Thrash:IsReady() then
@@ -909,7 +925,7 @@ function Druid.Rotation()
 				-- if Buff.PredatorySwiftness:Exist() and Player.HP <= 90 then
 				-- 	if Spell.Regrowth:Cast(Player) then return true end
 				-- end
-				if Player.HP <= 80 and not Player.Moving then
+				if Player.HP <= 80 and not Player.Moving and not Player.Casting then
 					if Spell.Regrowth:Cast(Player) then return true end
 				end
 			end
@@ -923,7 +939,7 @@ function Druid.Rotation()
 			end
 			if Spell.Moonfire:IsReady() then
 				for _, Unit in ipairs(DMW.Attackable) do
-					if GrindBot.Grinding:UnitIsViableForGrind(Unit) then
+					if GrindBot.Grinding:UnitIsViableForGrind(Unit) and not Unit:TappedOrPulled() then
 						if Spell.Moonfire:Cast(Unit) then return true end
 					end
 				end
@@ -986,7 +1002,7 @@ function Druid.Rotation()
 					end
 				end
 			end
-			if HUD.Shifts == 1 then
+			if HUD.Shifts == 1 and Player.Combat then
 				if not Buff.FormBear:Exist() then
 					if Spell.FormBear:Cast(Player) then return true end
 				end
@@ -997,17 +1013,24 @@ function Druid.Rotation()
 				-- if Buff.PredatorySwiftness:Exist() and not Buff.Prowl:Exist() and Player.HP <= 40 then
 				-- 	if Spell.Regrowth:Cast(Player) then return true end
 				-- end
-				if EnemyMeleeCount >= 5 then
-					if Spell.Barkskin:IsReady() then
-						Spell.Barkskin:Cast(Player)
-					end
-				end
+				-- if EnemyMeleeCount >= 5 then
+				-- 	if Spell.Barkskin:IsReady() then
+				-- 		Spell.Barkskin:Cast(Player)
+				-- 	end
+				-- end
 				if Spell.Ironfur:IsReady() and (EnemyMeleeCount >= 3 or
 					 (Player.RageDeficit < 40 and (Buff.Ironfur:Remain() < 0.5 or Buff.Ironfur:Stacks() < 3))) then
 						if Spell.Ironfur:Cast(Player) then end
 					-- end
 				end
 				if Player.HP <= 60 then
+					if GrindBot.Combat.MultipullForceCombat then
+						if Spell.Mangle:IsReady() then
+							for _, Unit in ipairs(EnemyMelee) do
+								if Spell.Mangle:Cast(Unit) then return true end
+							end
+						end
+					end
 					if Spell.FrenziedRegeneration:IsReady() then
 						if Spell.FrenziedRegeneration:Cast(Player) then return true end
 					end
