@@ -141,7 +141,7 @@ local function LocalsFeral()
             BloodTalonsGenStack = BloodTalonsGenStack + 1
         end
     end
-    noAoE = aoeCheck()
+    noAoE = true
 end
 
 local function LocalsGuardian()
@@ -1163,6 +1163,13 @@ function Druid.Rotation()
                         end
                     end
                 end
+                if Spell.Convoke:IsReady() then
+                    for _, Unit in ipairs(EnemyMelee) do
+                        if Spell.Convoke:Cast(Unit) then
+                            return true
+                        end
+                    end
+                end
                 if EnemyMeleeCount >= Setting("EnemyMelee for use Berserk") then
                     if Spell.Berserk:IsReady() then
                         if Spell.Berserk:Cast(Player) then
@@ -1174,7 +1181,7 @@ function Druid.Rotation()
                             return true
                         end
                     end
-                elseif EnemyMeleeCount >= 5 and not Buff.Berserk:Exist() or EnemyMeleeCount >= 2 and not Buff.Berserk:Exist() and Player.HP < 25 then
+                elseif EnemyMeleeCount >= 5 and not Buff.Berserk:Exist() or EnemyMeleeCount >= 2 and not Buff.Berserk:Exist() and Player.HP < 45 then
                     if Spell.Convoke:IsReady() then
                         -- if not Buff.FormCat:Exist() then
                         -- 	if Spell.FormCat:Cast(Player) then return true end
