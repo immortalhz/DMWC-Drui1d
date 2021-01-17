@@ -917,7 +917,12 @@ function Druid.Rotation()
 		-- 		if Spell.Thrash:Cast(Player) then Target.TriedToPull = true; return true end
 		-- 	end
 		-- end
-		if not Player.Combat  then
+        if Talent.Renewal and Player.Combat and Player.HP < 12 then
+            if Spell.Renewal:IsReady() and Spell.Renewal:Cast(Player) then
+                return true
+            end
+        end
+		if not Player.Combat then
 			if HUD.Cleanse == 1  then
 				if Cleanse() then return true end
 			end
@@ -982,7 +987,7 @@ function Druid.Rotation()
 				if EnemyMeleeCount >= 5 and Player.HP < 50 and Spell.SurvivalInstincts:IsReady() and not Spell.SurvivalInstincts:LastCast() then
 					Spell.SurvivalInstincts:Cast(Player)
 				end
-				if EnemyMeleeCount >= 10 then
+				if EnemyMeleeCount >= 5 then
 					if Spell.Berserk:IsReady() then
 						if Spell.Berserk:Cast(Player) then return true end
 					end
