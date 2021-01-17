@@ -981,10 +981,10 @@ function Druid.Rotation()
 			end
 			--Cooldowns
 			if GrindBot.Combat.MultipullForceCombat then
-				if EnemyMeleeCount >= 3 and Spell.Barkskin:IsReady()  then
+				if (EnemyMeleeCount >= 5 or Player.HP < 70) and Spell.Barkskin:IsReady()  then
 					Spell.Barkskin:Cast(Player)
 				end
-				if EnemyMeleeCount >= 5 and Player.HP < 50 and Spell.SurvivalInstincts:IsReady() and not Spell.SurvivalInstincts:LastCast() then
+				if EnemyMeleeCount >= 5 and Player.HP < 45 and Spell.SurvivalInstincts:IsReady() and not Spell.SurvivalInstincts:LastCast() then
 					Spell.SurvivalInstincts:Cast(Player)
 				end
 				if EnemyMeleeCount >= 5 then
@@ -992,14 +992,14 @@ function Druid.Rotation()
 						if Spell.Berserk:Cast(Player) then return true end
 					end
 				end
-				if EnemyMeleeCount == 1 and not Spell.Berserk:LastCast() and not Buff.Berserk:Exist() then
+				if (EnemyMeleeCount >= 5 or Player.HP < 30) and not Spell.Berserk:LastCast() and not Buff.Berserk:Exist() then
 					if Spell.Convoke:IsReady() then
 
 						-- if not Buff.FormCat:Exist() then
 						-- 	if Spell.FormCat:Cast(Player) then return true end
 						-- else
 							for _, Unit in ipairs(EnemyMelee) do
-								if Unit.Level >= 55 then
+								if Unit.Level >= 55 or DMW.Player.Level == 60 then
 									if Spell.Convoke:Cast(Unit) then return true end
 								end
 							end
