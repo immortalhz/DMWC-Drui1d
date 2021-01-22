@@ -917,7 +917,12 @@ function Druid.Rotation()
 		-- 		if Spell.Thrash:Cast(Player) then Target.TriedToPull = true; return true end
 		-- 	end
 		-- end
-		if not Player.Combat  then
+        if Talent.Renewal and Player.Combat and Player.HP < 12 then
+            if Spell.Renewal:IsReady() and Spell.Renewal:Cast(Player) then
+                return true
+            end
+        end
+		if not Player.Combat then
 			if HUD.Cleanse == 1  then
 				if Cleanse() then return true end
 			end
@@ -980,25 +985,25 @@ function Druid.Rotation()
 			end
 			--Cooldowns
 			if GrindBot.Combat.MultipullForceCombat then
-				if EnemyMeleeCount >= 3 and Spell.Barkskin:IsReady()  then
+				if (EnemyMeleeCount >= 5 or Player.HP < 70) and Spell.Barkskin:IsReady()  then
 					Spell.Barkskin:Cast(Player)
 				end
-				if EnemyMeleeCount >= 5 and Player.HP < 50 and Spell.SurvivalInstincts:IsReady() and not Spell.SurvivalInstincts:LastCast() then
+				if EnemyMeleeCount >= 5 and Player.HP < 45 and Spell.SurvivalInstincts:IsReady() and not Spell.SurvivalInstincts:LastCast() then
 					Spell.SurvivalInstincts:Cast(Player)
 				end
-				if EnemyMeleeCount >= 10 then
+				if EnemyMeleeCount >= 5 then
 					if Spell.Berserk:IsReady() then
 						if Spell.Berserk:Cast(Player) then return true end
 					end
 				end
-				if EnemyMeleeCount == 1 and not Spell.Berserk:LastCast() and not Buff.Berserk:Exist() then
+				if (EnemyMeleeCount >= 5 or Player.HP < 30) and not Spell.Berserk:LastCast() and not Buff.Berserk:Exist() then
 					if Spell.Convoke:IsReady() then
 
 						-- if not Buff.FormCat:Exist() then
 						-- 	if Spell.FormCat:Cast(Player) then return true end
 						-- else
 							for _, Unit in ipairs(EnemyMelee) do
-								if Unit.Level >= 55 then
+								if Unit.Level >= 55 or DMW.Player.Level == 60 then
 									if Spell.Convoke:Cast(Unit) then return true end
 								end
 							end
