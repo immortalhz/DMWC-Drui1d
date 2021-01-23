@@ -955,8 +955,11 @@ function Druid.Rotation()
 				-- if Buff.PredatorySwiftness:Exist() and Player.HP <= 90 then
 				-- 	if Spell.Regrowth:Cast(Player) then return true end
 				-- end
-				if Player.HP <= 80 and not Player.Moving and not Player.Casting then
-					if Spell.Regrowth:Cast(Player) then return true end
+				-- if Player.HP <= 80 and not Player.Moving and not Player.Casting then
+				-- 	if Spell.Regrowth:Cast(Player) then return true end
+				-- end
+				if Player.HP <= 80 and not Buff.Rejuvenation:Exist() then
+					if Spell.Rejuvenation:Cast(Player) then return true end
 				end
 			end
 			-- if
@@ -967,13 +970,7 @@ function Druid.Rotation()
 					if Spell.Thrash:Cast(Unit) then return true end
 				end
 			end
-			if Spell.Moonfire:IsReady() then
-				for _, Unit in ipairs(DMW.Attackable) do
-					if GrindBot.Grinding:UnitIsViableForGrind(Unit) and not Unit:TappedOrPulled() then
-						if Spell.Moonfire:Cast(Unit) then return true end
-					end
-				end
-			end
+
 			-- if Target and Target.ValidEnemy then
 			-- 	local flyingT = Target:Flying()
 			-- 	if flyingT and not Debuff.Moonfire:Exist(Target) then
@@ -984,6 +981,13 @@ function Druid.Rotation()
 				-- end
 					-- Target.Pulled = DMW.Time
 					return true
+				end
+			end
+			if GrindBot.Settings.profile.GrindingMode.MultipullHP <= Player.HP and Spell.Moonfire:IsReady() then
+				for _, Unit in ipairs(DMW.Attackable) do
+					if GrindBot.Grinding:UnitIsViableForGrind(Unit) and not Unit:TappedOrPulled() then
+						if Spell.Moonfire:Cast(Unit) then return true end
+					end
 				end
 			end
 			-- 		return
