@@ -73,6 +73,30 @@ local function Locals()
     -- end
     -- print(Form)
 end
+
+local function BaitHelper()
+    if IsHackEnabled('fish') then
+        local BaitTimer = GetTime()
+        local zoneName = GetZoneText()
+        if zoneName == "Revendreth" and not Buff.RevendrethBait:Exist() then
+            if ((DMW.Time - BaitTimer) < 0.2) then
+                if Item.SpinefinPiranhaBait:IsReady() and Item.SpinefinPiranhaBait:Use() then
+                    BaitTimer = 0
+                    return true
+                end
+            end
+        end
+        if zoneName == "Ardenweald" and not Buff.ArdenwealdBait:Exist() then
+            if ((DMW.Time - BaitTimer) < 0.2) then
+                if Item.IridescentAmberjackBait:IsReady() and Item.IridescentAmberjackBait:Use() then
+                    BaitTimer = 0
+                    return true
+                end
+            end
+        end
+    end
+end
+
 ---------------------------------------------------------PROTECTION---------------------------------------------------------PROTECTION---------------------------------------------------------PROTECTION-----------------------------------
 local function num(val)
     if val then
@@ -893,6 +917,7 @@ function Druid.Rotation()
 		end
 	elseif Player.SpecID == "Guardian" then
 		LocalsGuardian()
+        BaitHelper()
 		noAoE = aoeCheck()
 		if Player.Combat and not noAoE and GrindBot.Combat.MultipullForceCombat  then
 			-- local moveAwayFromUnit
