@@ -983,10 +983,38 @@ function Druid.Rotation()
 					return true
 				end
 			end
+			if Spell.Moonfire:IsReady() and not GrindBot.Combat.MultipullForceCombat then
+				for _, Unit in ipairs(DMW.Enemies) do
+					if Unit.LastHitTime and DMW.Time - Unit.LastHitTime >= 13 then
+						if Spell.Moonfire:Cast(Unit) then return true end
+					end
+				end
+			end
+			if HUD.Shifts == 1 and Player.Combat then
+				if not Buff.FormBear:Exist() then
+					if Spell.FormBear:Cast(Player) then return true end
+				end
+			end
 			if GrindBot.Settings.profile.GrindingMode.MultipullHP <= Player.HP and Spell.Moonfire:IsReady() then
 				for _, Unit in ipairs(DMW.Attackable) do
 					if GrindBot.Grinding:UnitIsViableForGrind(Unit) and not Unit:TappedOrPulled() then
 						if Spell.Moonfire:Cast(Unit) then return true end
+					end
+				end
+			end
+			if Spell.Moonfire:IsReady() and not GrindBot.Combat.MultipullForceCombat then
+				if Spell.Moonfire:IsReady() and not GrindBot.Combat.MultipullForceCombat then
+					local lastHitTime, lastHitUnit
+					for _, Unit in ipairs(DMW.Enemies) do
+						if Unit.LastHitTime then
+							if not lastHitUnit or lastHitTime < Unit.LastHitTime then
+								lastHitUnit = Unit
+								lastHitTime = Unit.LastHitTime
+							end
+						end
+					end
+					if lastHitUnit then
+						if Spell.Moonfire:Cast(lastHitUnit) then return true end
 					end
 				end
 			end
@@ -1036,11 +1064,7 @@ function Druid.Rotation()
 					end
 				end
 			end
-			if HUD.Shifts == 1 and Player.Combat then
-				if not Buff.FormBear:Exist() then
-					if Spell.FormBear:Cast(Player) then return true end
-				end
-			end
+
 
 			-- if FeralStealthOpener() then return true end
 			if HUD.Defensive == 1 then
@@ -1081,6 +1105,7 @@ function Druid.Rotation()
 				-- end
 			end
 		end
+
     elseif Player.SpecID =="Restoration" then
         LocalsRestoration()
         -- print(Form)
