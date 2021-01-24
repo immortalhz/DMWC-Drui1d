@@ -942,11 +942,7 @@ function Druid.Rotation()
 		-- 		if Spell.Thrash:Cast(Player) then Target.TriedToPull = true; return true end
 		-- 	end
 		-- end
-        if Talent.Renewal and Player.Combat and Player.HP < 12 then
-            if Spell.Renewal:IsReady() and Spell.Renewal:Cast(Player) then
-                return true
-            end
-        end
+
 		if not Player.Combat then
 			if HUD.Cleanse == 1  then
 				if Cleanse() then return true end
@@ -970,7 +966,13 @@ function Druid.Rotation()
 					if Spell.Thrash:Cast(Unit) then return true end
 				end
 			end
-
+			if HUD.Defensive == 1 then
+				if Talent.Renewal and Player.Combat and Player.HP < 12 then
+					if Spell.Renewal:IsReady() and Spell.Renewal:Cast(Player) then
+						return true
+					end
+				end
+			end
 			-- if Target and Target.ValidEnemy then
 			-- 	local flyingT = Target:Flying()
 			-- 	if flyingT and not Debuff.Moonfire:Exist(Target) then
@@ -1007,7 +1009,7 @@ function Druid.Rotation()
 					local lastHitTime, lastHitUnit
 					for _, Unit in ipairs(DMW.Enemies) do
 						if Unit.LastHitTime then
-							if not lastHitUnit or lastHitTime < Unit.LastHitTime then
+							if not lastHitUnit or lastHitTime > Unit.LastHitTime then
 								lastHitUnit = Unit
 								lastHitTime = Unit.LastHitTime
 							end
