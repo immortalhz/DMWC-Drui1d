@@ -1004,22 +1004,23 @@ function Druid.Rotation()
 					end
 				end
 			end
-			if Spell.Moonfire:IsReady() and not GrindBot.Combat.MultipullForceCombat then
-				if Spell.Moonfire:IsReady() and not GrindBot.Combat.MultipullForceCombat then
-					local lastHitTime, lastHitUnit
-					for _, Unit in ipairs(DMW.Enemies) do
-						if Unit.LastHitTime then
-							if not lastHitUnit or lastHitTime > Unit.LastHitTime then
-								lastHitUnit = Unit
-								lastHitTime = Unit.LastHitTime
-							end
-						end
-					end
-					if lastHitUnit then
-						if Spell.Moonfire:Cast(lastHitUnit) then return true end
-					end
-				end
-			end
+            if Spell.Moonfire:IsReady() and #DMW.Enemies > 2 then
+                local lastHitTime, lastHitUnit
+                for _, Unit in ipairs(DMW.Enemies) do
+                    if Unit.LastHitTime then
+                        if not lastHitUnit or lastHitTime > Unit.LastHitTime then
+                            lastHitUnit = Unit
+                            lastHitTime = Unit.LastHitTime
+                        end
+                    end
+                end
+                if lastHitUnit then
+                    if Spell.Moonfire:Cast(lastHitUnit) then
+                        print("test")
+                        return true
+                    end
+                end
+            end
 			-- 		return
 			-- 	else
 			-- 		if not Buff.Prowl:Exist() and not Player.Combat and (Target.Distance <= 10 or Spell.WildChargeCat:IsReady()) and Target.Distance <= 25 and Spell.Prowl:IsReady() then
