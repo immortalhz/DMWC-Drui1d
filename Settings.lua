@@ -63,6 +63,7 @@ function Druid.Settings()
     UI.AddToggle("Moonfire", "", true)
     UI.AddToggle("Sunfire", "", true)
     UI.AddToggle("Wrath", "", true)
+    UI.AddToggle("AOE Moonfire", "", false)
     -- UI.AddToggle("Moonfire", "", true)
 
     -- UI.AddHeader("This Is A Header")

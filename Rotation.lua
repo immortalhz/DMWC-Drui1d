@@ -919,6 +919,15 @@ function Druid.Rotation()
 		LocalsGuardian()
         BaitHelper()
 		noAoE = aoeCheck()
+        if Setting("AOE Moonfire") then
+            for _, Unit in ipairs(DMW.Attackable) do
+                if not Unit:TappedOrPulled() and Unit.Distance <= 40 then
+                    if Spell.Moonfire:Cast(Unit) then
+                        return true
+                    end
+                end
+            end
+        end
 		if Player.Combat and not noAoE and GrindBot.Combat.MultipullForceCombat  then
 			-- local moveAwayFromUnit
 			-- for _, Unit in pairs(DMW.Attackable) do
