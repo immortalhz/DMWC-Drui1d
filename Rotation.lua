@@ -1004,7 +1004,7 @@ function Druid.Rotation()
 					end
 				end
 			end
-            if Spell.Moonfire:IsReady() and #DMW.Enemies > 2 then
+            if Spell.Moonfire:IsReady() and not GrindBot.Combat.MultipullForceCombat then
                 local lastHitTime, lastHitUnit
                 for _, Unit in ipairs(DMW.Enemies) do
                     if Unit.LastHitTime then
@@ -1014,9 +1014,8 @@ function Druid.Rotation()
                         end
                     end
                 end
-                if lastHitUnit then
+                if lastHitUnit and DMW.Time - lastHitTime > 3 then
                     if Spell.Moonfire:Cast(lastHitUnit) then
-                        print("test")
                         return true
                     end
                 end
